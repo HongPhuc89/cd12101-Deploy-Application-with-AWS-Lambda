@@ -48,6 +48,10 @@ functions:
           method: post
           path: todos
           cors: true
+          authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(models/create-todo-request.json)}
 
   # TODO: Configure this function
   UpdateTodo:
