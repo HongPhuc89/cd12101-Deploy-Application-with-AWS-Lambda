@@ -5,7 +5,7 @@ const dynamoDbClient = DynamoDBDocument.from(new DynamoDB())
 
 const todosTable = process.env.TODOS_TABLE
 
-export function handler(event) {
+export async function handler(event) {
   // TODO: Get all TODO items for a current user
   console.log('Processing event: ', event)
   const scanCommand = {
