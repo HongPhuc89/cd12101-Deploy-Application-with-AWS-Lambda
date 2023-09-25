@@ -1,6 +1,7 @@
 import Axios from 'axios'
 import jsonwebtoken from 'jsonwebtoken'
 import { createLogger } from '../../utils/logger.mjs'
+import jwkToPem from 'jwk-to-pem'
 
 const logger = createLogger('auth')
 
@@ -47,7 +48,15 @@ async function verifyToken(authHeader) {
   const jwt = jsonwebtoken.decode(token, { complete: true })
 
   // TODO: Implement token verification
-  return undefined;
+  const response = await Axios(jwksUrl)
+  const responseData = response.data
+  const signingKey = responseData['keys'].find(
+    (key) => key['kid'] === jwt['header']['kid']
+  )
+  if (!signingKey) {
+    throw new Error('Invalid Signing key')
+  }
+  return jsonwebtoken.verify(token, jwkToPem(signingKey), { algorithms: ['RS256'] })
 }
 
 function getToken(authHeader) {
