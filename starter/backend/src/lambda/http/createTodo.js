@@ -6,7 +6,7 @@ import { getUserId } from '../utils.mjs'
 
 const dynamoDbClient = DynamoDBDocument.from(new DynamoDB())
 
-const groupsTable = process.env.TODOS_TABLE
+const todosTable = process.env.TODOS_TABLE
 
 export async function handler(event) {
   console.log('Processing event: ', event)
@@ -16,7 +16,7 @@ export async function handler(event) {
   const parsedBody = JSON.parse(event.body)
 
   const newItem = {
-    id: itemId,
+    todoId: itemId,
     userId: userId,
     createdAt: new Date().toISOString(),
     done: false,
@@ -24,7 +24,7 @@ export async function handler(event) {
   }
 
   await dynamoDbClient.put({
-    TableName: groupsTable,
+    TableName: todosTable,
     Item: newItem
   })
 
