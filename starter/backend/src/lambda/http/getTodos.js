@@ -1,26 +1,34 @@
 import { getUserId } from '../utils.mjs'
-import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 
-const dynamoDbClient = DynamoDBDocument.from(new DynamoDB())
+const client = new DynamoDBClient({});
 
 const todosTable = process.env.TODOS_TABLE
 
 export async function handler(event) {
   console.log('Processing event: ', event)
   const userId = getUserId(event)
+  console.log('Get all todo for user: ', userId)
   const params = {
-    ExpressionAttributeValues: {
-      ':userId': {
-        S: userId
-      }
-    },
     KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': { S: userId }
+    },
     TableName: todosTable
   }
 
-  const result = await dynamoDbClient.send(new QueryCommand(params))
-  const items = result.Items
+  console.log(params)
+  const result = await client.send(new QueryCommand(params))
+  const items = result.Items.map((item) => {
+    return {
+      todoId: item.todoId.S,
+      createdAt: item.createdAt.S,
+      name: item.name.S,
+      dueDate: item.dueDate.S,
+      done: item.done.B,
+      attachmentUrl: item.attachmentUrl?.S
+    }
+  })
 
   return {
     statusCode: 200,
