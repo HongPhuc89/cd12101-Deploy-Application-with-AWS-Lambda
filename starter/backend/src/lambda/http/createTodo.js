@@ -15,7 +15,7 @@ export async function handler(event) {
 
   const parsedBody = JSON.parse(event.body)
 
-  const newItem = {
+  const item = {
     todoId: itemId,
     userId: userId,
     createdAt: new Date().toISOString(),
@@ -25,7 +25,7 @@ export async function handler(event) {
 
   await dynamoDbClient.put({
     TableName: todosTable,
-    Item: newItem
+    Item: item
   })
 
   return {
@@ -34,7 +34,7 @@ export async function handler(event) {
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      newItem
+      item
     })
   }
 }

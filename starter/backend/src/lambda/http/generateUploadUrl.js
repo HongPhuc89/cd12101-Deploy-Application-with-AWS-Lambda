@@ -1,5 +1,5 @@
 import { getUserId } from '../utils.mjs'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { GetObjectCommand, PutObjectCommand, S3Client, } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument, UpdateCommand } from '@aws-sdk/lib-dynamodb'
@@ -18,6 +18,12 @@ export async function handler(event) {
   })
 
   const signedUrl = await getSignedUrl(s3Client, command,  { expiresIn: 3600 });
+
+  const getCommand = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: todoId
+  })
+  const signedUrlGet = await getSignedUrl(s3Client, getCommand,  { expiresIn: 3600 });
   const params = {
     TableName: todosTable,
     Key: {
@@ -29,7 +35,7 @@ export async function handler(event) {
     },
     UpdateExpression: 'set #attachmentUrl = :attachmentUrl',
     ExpressionAttributeValues: {
-      ':attachmentUrl': signedUrl,
+      ':attachmentUrl': signedUrlGet,
     }
   }
 
